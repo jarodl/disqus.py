@@ -1,9 +1,18 @@
 import urllib2
+import urllib
+
+def _usingPy26():
+    import sys
+    return sys.hexversion > 0x20600f0
+
+if _usingPy26():
+    import json
+else:
+    import simplejson as json
 
 from exceptions import Exception
 
 from disqus.disqus_globals import POST_ACTIONS
-from disqus.auth import NoAuth
 
 class DisqusError(Exception):
     """
@@ -17,28 +26,67 @@ class DisqusHTTPError(DisqusError):
     Exception thrown by the Disqus object when there is an HTTP error
     interacting with disqus.com
     """
-    def __init__(self, e, uri, format, uriparts):
+    def __init__(self, e, uri, arg_string):
         self.e = e
         self.uri = uri
-        self.format = format
-        self.uriparts = uriparts
+        self.arg_string = arg_string
 
     def __str__(self):
         return (
-            "Disqus sent status %i for URL: %s.%s using parameters: "
+            "Disqus sent status %i for URL: %s using parameters: "
             "(%s)\ndetails: %s" %(
-                self.e.code, self.uri, self.format, self.uriparts,
+                self.e.code, self.uri, self.arg_string,
                 self.e.fp.read()))
 
-class DisqusCall(self):
-    pass
+class DisqusCall(object):
+    def __init__(self, api_key, domain, api_version, method=''):
+        self.api_key = api_key
+        self.domain = domain
+        self.method = method
+        self.api_version = api_version
 
-class Disqus(self):
+    def __getattr__(self, k, **kwargs):
+        try:
+            return object.__getattr__(self, k)
+        except AttributeError:
+            return DisqusCall(api_key=self.api_key, domain=self.domain,
+                              api_version=self.api_version, method=k)
+
+    def __call__(self, **kwargs):
+            # format the arguments
+            kwargs['api_version'] = self.api_version
+            kwargs['user_api_key'] = self.api_key
+            arg_string = urllib.urlencode(kwargs)
+
+            # Get request type
+            if self.method in POST_ACTIONS:
+                request_type = "POST"
+                body = arg_string
+                uri = "http://%s/api/%s/" % (self.domain, self.method)
+            else:
+                request_type = "GET"
+                body = None
+                uri = "http://%s/api/%s/?%s" % (self.domain, 'get_' + \
+                                                self.method, \
+                                                arg_string)
+
+            req = urllib2.Request(uri, body, {})
+            try:
+                handle = urllib2.urlopen(req)
+                res = json.loads(handle.read())
+                return res['message']
+            except urllib2.HTTPError, e:
+                if (e.code == 304):
+                    return []
+                else:
+                    raise DisqusHTTPError(e, uri, arg_string)
+
+class Disqus(DisqusCall):
     """
     The Disqus API class.
 
     Accessing members of this class returns RESTful data from the Disqus API.
-    The data is returned as python objects (lists and dicts).
+    The data is then converted to python objects (lists and dicts).
 
     You can find more about the Disqus API here:
 
@@ -47,35 +95,42 @@ class Disqus(self):
     Examples:
     ---------
 
-    disqus = Disqus(auth=Auth(secret_key))
+    # Init with your API key. To find out your key visit
+    # http://disqus.com/api/get_my_key while logged in to disqus.com.
+    disqus = Disqus(secret_key)
 
-    # Get a list of sites that user owns
-    disqus.sites.all()
+    # Get a list of forums that user owns
+    disqus.forum_list()
 
-    # Get a list of comments on a site
-    disqus.sites.comments(site=site_id)
+    # Get a list of posts on a forum
+    disqus.forum_posts(forum_id=1)
 
-    # Get a list of categories on a site
-    disqus.sites.categories(site=site_id)
+    # Get a list of categories on a forum
+    disqus.category_list(forum_id=2)
 
-    # Get a list of threads on a site
-    disqus.sites.threads(site=site_id)
+    # Get a list of updated threads on a forum
+    disqus.updated_threads(forum_id=1)
 
-    # Get a particular thread
-    disqus.sites.thread(site=site_id, thread=thread_id)
+    # Get a list of posts on a thread
+    disqus.thread_posts(thread_id=1)
+
+    # Get a particular thread or create it if it doesn't exist
+    disqus.thread_by_identifier(forum_id=1, identifier='my_thread',
+                                title='My Killer Thread')
+    # or
+    disqus.thread_by_url(url='http://my.awesome/thread')
+
+    # Update a thread
+    disqus.update_thread(forum_id=1, thread_id=4)
 
     # Create a new post
-    disqus.sites.thread.post.new(site=site_id, thread=thread_id,
-                                 message='Dope API, yo!')
+    disqus.create_post(site_id=1, thread_id=4,
+                       message='Dope API, yo!')
 
-    # Delete a post
-    disqus.sites.thread.post.delete(post=post_id)
-
-    # Mark a post as spam
-    disqus.sites.thread.post.mark_spam(post=post_id)
-
-    # Approve a post
-    disqus.sites.thread.post.approve(post=post_id)
+    # Moderate a post
+    disqus.moderate_post(post_id=234, action='spam')
+    disqus.moderate_post(post_id=123, action='approve')
+    disqus.moderate_post(post_id=324, action='kill')
 
     Using the data returned:
     ------------------------
@@ -83,32 +138,26 @@ class Disqus(self):
     All API calls are returned in decoded JSON. This is converted into python
     objects.
 
-    x = disqus.sites.all()
+    x = disqus.forum_list()
 
-    # The first site
+    # The first forum
     x[0]
 
-    # The description of the first site
+    # The description of the first forum
     x[0]['description']
 
-    # The shortname of the first site
+    # The shortname of the first forum
     x[0]['shortname']
 
     """
-    def __init__(self, domain="disqus.com", auth=None, api_version='1.1'):
+    def __init__(self, api_key, domain="disqus.com", api_version='1.1'):
         """
         Creates a new Disqus API connector.
 
         Pass an Auth object initialized with your Disqus API key. To get your
         Disqus API key visit http://disqus.com/api/get_my_key while logged in.
         """
-        if not auth:
-            auth = NoAuth()
-
-        uriparts = (str(api_version),)
-
-        DisqusCall.__init__(
-            self, auth=auth, domain=domain, uriparts=uriparts)
-
+        DisqusCall.__init__(self, api_key, domain=domain,
+                            api_version=api_version)
 
 __all__ = ["Disqus", "DisqusError", "DisqusHTTPError"]

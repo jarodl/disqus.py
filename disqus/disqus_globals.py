@@ -1,8 +1,10 @@
 """
-
 List of Disqus method names that require POST.
 """
-
 POST_ACTIONS = [
-    "new",
+    "create_post",
+    "moderate_post",
+    "update_thread",
+    "thread_by_identifier",
+    "user_name",
 ]
