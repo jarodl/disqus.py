@@ -1,4 +1,5 @@
 ## Python
+disqus.egg-info
 *.pyc
 *~
 dist
