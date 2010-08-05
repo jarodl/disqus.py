@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.0.1'
+version = '0.0.2'
 
 install_requires = [
     # -*- Extra requirements: -*-
@@ -16,11 +16,13 @@ if not _usingPy26():
 setup(name='disqus',
       version=version,
       description="An API wrapper for Disqus (disqus.com)",
-      long_description=open("./README.md", "r").read(),
+      long_description="""The Disqus API enables developers to interact with the
+      Disqus data in their programs. This package conveniently wraps that API for
+      easy use with python.""",
       classifiers=[
           "Development Status :: 3 - Alpha",
           "Environment :: Console",
-          "Intended Audience :: End Users",
+          "Intended Audience :: Developers",
           "Natural Language :: English",
           "Operating System :: OS Independent",
           "Programming Language :: Python",
