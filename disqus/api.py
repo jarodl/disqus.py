@@ -106,7 +106,10 @@ class Disqus(DisqusCall):
     disqus.forum_posts(forum_id=1)
 
     # Get a list of categories on a forum
-    disqus.category_list(forum_id=2)
+    disqus.categories_list(forum_id=2)
+
+    # Get a list of threads on a forum
+    disqus.thread_list(forum_id=2)
 
     # Get a list of updated threads on a forum
     disqus.updated_threads(forum_id=1)
@@ -159,5 +162,3 @@ class Disqus(DisqusCall):
         """
         DisqusCall.__init__(self, api_key, domain=domain,
                             api_version=api_version)
-
-__all__ = ["Disqus", "DisqusError", "DisqusHTTPError"]

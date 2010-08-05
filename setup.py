@@ -5,22 +5,20 @@ version = '0.0.1'
 
 install_requires = [
     # -*- Extra requirements: -*-
-    "python-dateutil>=1.1",
     ]
 
-def _py26OrGreater():
+def _usingPy26():
     return sys.hexversion > 0x20600f0
 
-if not _py26OrGreater():
+if not _usingPy26():
     install_requires.append("simplejson>=1.7.1")
-
 
 setup(name='disqus',
       version=version,
-      description="An API wrapper for Disqus",
+      description="An API wrapper for Disqus (disqus.com)",
       long_description=open("./README.md", "r").read(),
       classifiers=[
-          "Development Status :: 5 - Production/Stable",
+          "Development Status :: 3 - Alpha",
           "Environment :: Console",
           "Intended Audience :: End Users",
           "Natural Language :: English",
@@ -30,7 +28,7 @@ setup(name='disqus',
           "Topic :: Utilities",
           "License :: OSI Approved :: MIT License",
           ],
-      keywords='disqus', 'API', 'commenting',
+      keywords='disqus', 'API', 'commenting', 'community',
       author='Jarod Luebbert',
       author_email='jarod@disqus.com',
       url='http://jarodl.com',
@@ -41,7 +39,5 @@ setup(name='disqus',
       install_requires=install_requires,
       entry_points="""
       # -*- Entry points: -*-
-      [console_scripts]
-      disqus=disqus.cmdline:main
       """,
       )

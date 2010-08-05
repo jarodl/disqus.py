@@ -1,6 +1,0 @@
-"""
-USAGE:
-
-    disqus [action] [options]
-
-"""

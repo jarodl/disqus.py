@@ -6,5 +6,5 @@ POST_ACTIONS = [
     "moderate_post",
     "update_thread",
     "thread_by_identifier",
-    "user_name",
+    "get_user_name",
 ]
