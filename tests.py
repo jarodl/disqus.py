@@ -4,13 +4,16 @@ from disqus import *
 """Configuration"""
 # Must supply a Disqus API key for tests
 secret_key = ''
+# A partner key is only required by some API calls
+partner_key = ''
 
 """Unit Tests"""
 
 class DisqusAPITests(unittest.TestCase):
 
     def setUp(self):
-        self.api = Disqus(secret_key)
+        self.partner = Disqus(partner_key=partner_key)
+        self.api = Disqus(api_key=secret_key)
         self.forum_id = self.api.forum_list()[0]['id']
         self.forum_api_key = self.api.forum_api_key(forum_id=self.forum_id)
         self.thread_id = self.api.thread_list(forum_id=self.forum_id)[0]['id']
@@ -52,6 +55,18 @@ class DisqusAPITests(unittest.TestCase):
 
     def testModeratePost(self):
         self.api.moderate_post(post_id=self.post_id, action='approve')
+
+    def testPartnerRecentForums(self):
+        self.partner.recent_forums_comments()
+
+    def testPartnerUserComments(self):
+        self.partner.user_comments(username='jarodluebbert', forum_id='276227')
+
+    def testPartnerUserInfo(self):
+        self.partner.user_info(username='jarodluebbert')
+
+    def testPartnerMostCommented(self):
+        self.partner.most_commented_threads(forum_id='276227')
 
 if __name__ == '__main__':
     unittest.main()

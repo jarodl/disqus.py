@@ -39,8 +39,11 @@ class DisqusHTTPError(DisqusError):
                 self.e.fp.read()))
 
 class DisqusCall(object):
-    def __init__(self, api_key, domain, api_version, method=''):
+    def __init__(self, api_key=None, partner_key=None,
+                 domain='disqus.com', api_version='1.1',
+                 method=''):
         self.api_key = api_key
+        self.partner_key = partner_key
         self.domain = domain
         self.method = method
         self.api_version = api_version
@@ -49,13 +52,18 @@ class DisqusCall(object):
         try:
             return object.__getattr__(self, k)
         except AttributeError:
-            return DisqusCall(api_key=self.api_key, domain=self.domain,
-                              api_version=self.api_version, method=k)
+            return DisqusCall(api_key=self.api_key,
+                              partner_key=self.partner_key,
+                              domain=self.domain, api_version=self.api_version,
+                              method=k)
 
     def __call__(self, **kwargs):
             # format the arguments
             kwargs['api_version'] = self.api_version
-            kwargs['user_api_key'] = self.api_key
+            if self.api_key:
+                kwargs['user_api_key'] = self.api_key
+            if self.partner_key:
+                kwargs['partner_api_key'] = self.partner_key
             arg_string = urllib.urlencode(kwargs)
 
             # Get request type
@@ -153,12 +161,13 @@ class Disqus(DisqusCall):
     x[0]['shortname']
 
     """
-    def __init__(self, api_key, domain="disqus.com", api_version='1.1'):
+    def __init__(self, api_key=None, partner_key=None, domain="disqus.com",
+                 api_version='1.1'):
         """
         Creates a new Disqus API connector.
 
         Pass an Auth object initialized with your Disqus API key. To get your
         Disqus API key visit http://disqus.com/api/get_my_key while logged in.
         """
-        DisqusCall.__init__(self, api_key, domain=domain,
-                            api_version=api_version)
+        DisqusCall.__init__(self, api_key=api_key, partner_key=partner_key,
+                            domain=domain, api_version=api_version)
