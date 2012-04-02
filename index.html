@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Disqus.py by jarodl</title>
+    
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Disqus.py</h1>
+        <p>A python library for interacting with the Disqus API.</p>
+        <p class="view"><a href="https://github.com/jarodl/disqus.py">View the Project on GitHub <small>jarodl/disqus.py</small></a></p>
+        <ul>
+          <li><a href="https://github.com/jarodl/disqus.py/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jarodl/disqus.py/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jarodl/disqus.py">Fork On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>Usage</h2>
+
+<p>Init with your API key. To find out your key visit
+<a href="http://disqus.com/api/get_my_key">this page</a> while logged in to disqus.com.
+    disqus = Disqus(secret_key)</p>
+
+<p>Get a list of forums that user owns
+    disqus.forum_list()</p>
+
+<p>Get a list of posts on a forum
+    disqus.forum_posts(forum_id=1)</p>
+
+<p>Get a list of categories on a forum
+    disqus.categories_list(forum_id=2)</p>
+
+<p>Get a list of threads on a forum
+    disqus.thread_list(forum_id=2)</p>
+
+<p>Get a list of updated threads on a forum
+    disqus.updated_threads(forum_id=1)</p>
+
+<p>Get a list of posts on a thread
+    disqus.thread_posts(thread_id=1)</p>
+
+<p>Get a particular thread or create it if it doesn't exist
+    disqus.thread_by_identifier(forum_id=1, identifier='my_thread',
+                                title='My Killer Thread')
+or
+    disqus.thread_by_url(url='<a href="http://my.awesome/thread'">http://my.awesome/thread'</a>)</p>
+
+<p>Update a thread
+    disqus.update_thread(forum_id=1, thread_id=4)</p>
+
+<p>Create a new post
+    disqus.create_post(site_id=1, thread_id=4,
+                       message='Dope API, yo!')</p>
+
+<p>Moderate a post
+    disqus.moderate_post(post_id=234, action='spam')
+    disqus.moderate_post(post_id=123, action='approve')
+    disqus.moderate_post(post_id=324, action='kill')</p>
+
+<h2>Installation</h2>
+
+<p><code>pip install disqus</code></p>
+
+<h2>Credit</h2>
+
+<p><a href="http://github.com/joshthecoder/tweepy">Tweepy</a> and
+<a href="http://github.com/sixohsix/twitter">The Twitter Python API</a> were a
+great help for structure and ideas.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/jarodl">jarodl</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
